@@ -12,6 +12,7 @@ import {
   SSE_LINE_DELIMITER,
 } from "@/lib/types";
 
+
 // Remove or comment out the edge runtime declaration
 // export const runtime = "edge";
 
@@ -39,7 +40,7 @@ export const POST = async (req: Request) => {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const { messages, newMessage, chatId } =
+    const { messages, newMessage, chatId, modelId } =
       (await req.json()) as ChatRequestBody;
     const convex = getConvexClient();
 
@@ -80,22 +81,35 @@ export const POST = async (req: Request) => {
 
         try {
           // Create the event stream
-          const eventStream = await submitQuestion(langChainMessages, chatId);
+          const eventStream = await submitQuestion(
+            langChainMessages,
+            chatId,
+            modelId
+          );
 
           // Process the events
           for await (const event of eventStream) {
-            // console.log("🔄 Event:", event);
-
+            // console.log("🔄 Stream Event:", event);
+            
             if (event.event === "on_chat_model_stream") {
               const token = event.data.chunk;
               if (token) {
-                // Access the text property from the AIMessageChunk
-                const text = token.content.at(0)?.["text"];
+                // Check if token is AIMessageChunk
+                const text = typeof token === 'string' ? token : token.content;
                 if (text) {
-                  await sendSSEMessage(writer, {
-                    type: StreamMessageType.Token,
-                    token: text,
-                  });
+                  // If the text contains model info (starts with "_Model used:"), 
+                  // format it differently
+                  if (text.includes("_Model used:")) {
+                    await sendSSEMessage(writer, {
+                      type: StreamMessageType.Token,
+                      token: `\n\n<em class="text-gray-500">${text.replace(/_/g, '')}</em>`,
+                    });
+                  } else {
+                    await sendSSEMessage(writer, {
+                      type: StreamMessageType.Token,
+                      token: text,
+                    });
+                  }
                 }
               }
             } else if (event.event === "on_tool_start") {
@@ -106,7 +120,6 @@ export const POST = async (req: Request) => {
               });
             } else if (event.event === "on_tool_end") {
               const toolMessage = new ToolMessage(event.data.output);
-
               await sendSSEMessage(writer, {
                 type: StreamMessageType.ToolEnd,
                 tool: toolMessage.lc_kwargs.name || "unknown",
@@ -119,12 +132,15 @@ export const POST = async (req: Request) => {
           await sendSSEMessage(writer, { type: StreamMessageType.Done });
         } catch (streamError) {
           console.error("Error in event stream:", streamError);
+          
+          // Send a more detailed error message to the client
+          const errorMessage = streamError instanceof Error 
+            ? `Error: ${streamError.message}${streamError.cause ? ` (${JSON.stringify(streamError.cause)})` : ''}`
+            : "Stream processing failed";
+            
           await sendSSEMessage(writer, {
             type: StreamMessageType.Error,
-            error:
-              streamError instanceof Error
-                ? streamError.message
-                : "Stream processing failed",
+            error: errorMessage
           });
         }
       } catch (error) {

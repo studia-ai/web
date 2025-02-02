@@ -19,6 +19,7 @@ export enum StreamMessageType {
   Done = "done",
   ToolStart = "tool_start",
   ToolEnd = "tool_end",
+  ModelChange = "model_change",
 }
 
 export interface BaseStreamMessage {
@@ -55,16 +56,30 @@ export interface ToolEndMessage extends BaseStreamMessage {
   output: unknown;
 }
 
+export interface ModelChangeMessage {
+  type: StreamMessageType.ModelChange;
+  model: string;
+}
+
 export type StreamMessage =
   | TokenMessage
   | ErrorMessage
   | ConnectedMessage
   | DoneMessage
   | ToolStartMessage
-  | ToolEndMessage;
+  | ToolEndMessage
+  | ModelChangeMessage;
 
 export interface ChatRequestBody {
   messages: Message[];
   newMessage: string;
   chatId: Id<"chats">;
+  modelId: string;
+}
+
+export interface OpenRouterModel {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
 }

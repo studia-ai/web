@@ -5,7 +5,9 @@ import {
   trimMessages,
   SystemMessage,
 } from "@langchain/core/messages";
-import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatOpenAI } from "@langchain/openai";
+import { ChatDeepSeek } from '@langchain/deepseek';
+// import { ChatAnthropic } from "@langchain/anthropic";
 import {
   END,
   START,
@@ -19,7 +21,9 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
+import { POPULAR_MODELS } from "./models";
 import SYSTEM_MESSAGE from "@/constants/systemMessage";
+
 
 // Trim the messages to manage conversation history
 const trimmer = trimMessages({
@@ -41,46 +45,40 @@ const toolClient = new wxflows({
 const tools = await toolClient.lcTools;
 const toolNode = new ToolNode(tools);
 
-// Connect to the LLM provider with better tool instructions
-const initialiseModel = () => {
-  const model = new ChatAnthropic({
-    modelName: "claude-3-5-sonnet-20241022",
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-    temperature: 0.7,
-    maxTokens: 4096,
-    streaming: true,
-    clientOptions: {
-      defaultHeaders: {
-        "anthropic-beta": "prompt-caching-2024-07-31",
+// Initialize model with OpenRouter/DeepSeek
+const initialiseModel = (modelId: string) => {
+  try {
+    const model = new ChatOpenAI({
+      modelName: modelId,
+      temperature: 0.7,
+      maxTokens: 4096,
+      streaming: true,
+      apiKey: process.env.OPENROUTER_API_KEY,
+      configuration: {
+        baseURL: "https://openrouter.ai/api/v1",
+        defaultHeaders: {
+          "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000",
+          "X-Title": "Studia.ai",
+        },
       },
-    },
-    callbacks: [
-      {
+      callbacks: [{
         handleLLMStart: async () => {
-          // console.log("🤖 Starting LLM call");
+          console.log("🤖 Starting OpenRouter call for model:", modelId);
+        },
+        handleLLMError: async (error) => {
+          console.error("🔥 OpenRouter error:", error);
         },
         handleLLMEnd: async (output) => {
-          console.log("🤖 End LLM call", output);
-          const usage = output.llmOutput?.usage;
-          if (usage) {
-            // console.log("📊 Token Usage:", {
-            //   input_tokens: usage.input_tokens,
-            //   output_tokens: usage.output_tokens,
-            //   total_tokens: usage.input_tokens + usage.output_tokens,
-            //   cache_creation_input_tokens:
-            //     usage.cache_creation_input_tokens || 0,
-            //   cache_read_input_tokens: usage.cache_read_input_tokens || 0,
-            // });
-          }
-        },
-        // handleLLMNewToken: async (token: string) => {
-        //   // console.log("🔤 New token:", token);
-        // },
-      },
-    ],
-  }).bindTools(tools);
+          console.log("🤖 End OpenRouter call", output);
+        }
+      }]
+    }).bindTools(tools);
 
-  return model;
+    return model;
+  } catch (error) {
+    console.error("Failed to initialize OpenRouter model:", error);
+    throw error;
+  }
 };
 
 // Define the function that determines whether to continue or not
@@ -103,8 +101,12 @@ function shouldContinue(state: typeof MessagesAnnotation.State) {
 }
 
 // Define a new graph
-const createWorkflow = () => {
-  const model = initialiseModel();
+const createWorkflow = (modelId: string) => {
+  const model = initialiseModel(modelId);
+  
+  // Get model name from ID
+  const modelName = POPULAR_MODELS.find(m => m.id === modelId)?.name || modelId;
+
 
   return new StateGraph(MessagesAnnotation)
     .addNode("agent", async (state) => {
@@ -127,6 +129,10 @@ const createWorkflow = () => {
 
       // Get response from the model
       const response = await model.invoke(prompt);
+
+      // Add model info to response
+      const modelInfo = `\n\n_Model used: ${modelName}_`;
+      response.content = response.content + modelInfo;
 
       return { messages: [response] };
     })
@@ -173,13 +179,13 @@ function addCachingHeaders(messages: BaseMessage[]): BaseMessage[] {
   return cachedMessages;
 }
 
-export async function submitQuestion(messages: BaseMessage[], chatId: string) {
-  // Add caching headers to messages
+export async function submitQuestion(
+  messages: BaseMessage[], 
+  chatId: string,
+  modelId: string
+) {
   const cachedMessages = addCachingHeaders(messages);
-  // console.log("🔒🔒🔒 Messages:", cachedMessages);
-
-  // Create workflow with chatId and onToken callback
-  const workflow = createWorkflow();
+  const workflow = createWorkflow(modelId);
 
   // Create a checkpoint to save the state of the conversation
   const checkpointer = new MemorySaver();

@@ -3,18 +3,37 @@
 import { useEffect, useRef, useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { ChatRequestBody, StreamMessageType } from "@/lib/types";
+import { ChatRequestBody, StreamMessageType, OpenRouterModel } from "@/lib/types";
 import WelcomeMessage from "@/components/WelcomeMessage";
 import { createSSEParser } from "@/lib/SSEParser";
 import { MessageBubble } from "@/components/MessageBubble";
 import { ArrowRight } from "lucide-react";
 import { getConvexClient } from "@/lib/convex";
 import { api } from "@/convex/_generated/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { POPULAR_MODELS } from "@/lib/models";
 
 interface ChatInterfaceProps {
   chatId: Id<"chats">;
   initialMessages: Doc<"messages">[];
 }
+
+const groupBy = <T extends Record<string, any>>(
+  array: T[],
+  key: keyof T
+): Record<string, T[]> => {
+  return array.reduce((groups, item) => {
+    const value = item[key];
+    groups[value] = [...(groups[value] || []), item];
+    return groups;
+  }, {} as Record<string, T[]>);
+};
 
 export default function ChatInterface({
   chatId,
@@ -28,7 +47,9 @@ export default function ChatInterface({
     name: string;
     input: unknown;
   } | null>(null);
+  const [selectedModel, setSelectedModel] = useState(POPULAR_MODELS[0].id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -114,6 +135,7 @@ export default function ChatInterface({
         })),
         newMessage: trimmedInput,
         chatId,
+        modelId: selectedModel,
       };
 
       // Initialize SSE connection
@@ -239,6 +261,13 @@ export default function ChatInterface({
     }
   };
 
+  const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
+    // You might want to notify the user that changing models will start a new conversation
+    setStreamedResponse("");
+    setCurrentTool(null);
+  };
+
   return (
     <main className="flex flex-col h-[calc(100vh-3.5rem)]">
       {/* Messages container */}
@@ -325,6 +354,41 @@ export default function ChatInterface({
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Model Selector */}
+      <div className="border-t border-gray-200/50 bg-white/80 backdrop-blur-sm px-2 sm:px-3 py-2">
+        <div className="max-w-5xl mx-auto flex items-center gap-2">
+          <span className="text-sm text-gray-500">Model:</span>
+          <Select value={selectedModel} onValueChange={handleModelChange}>
+            <SelectTrigger className="w-[200px] bg-white/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(groupBy(POPULAR_MODELS, 'category')).map(([category, models]) => (
+                <div key={category}>
+                  <div className="px-2 py-1.5 text-sm font-semibold text-gray-500">
+                    {category}
+                  </div>
+                  {models.map((model) => (
+                    <SelectItem
+                      key={model.id}
+                      value={model.id}
+                      className="py-2 px-4 text-sm cursor-pointer hover:bg-gray-100"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium">{model.name}</span>
+                        {model.description && (
+                          <span className="text-xs text-gray-500">{model.description}</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </div>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
