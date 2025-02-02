@@ -1,5 +1,7 @@
 # Studia.ai - AI-Powered Research Assistant
 
+![Studia.ai Banner](public\banner.png)
+
 ## Overview
 Studia.ai is a sophisticated AI agent platform built for research and blockchain development. It combines IBM watsonx.ai and Claude-3.5-Sonnet with specialized tools to provide intelligent responses and perform complex tasks through natural conversation.
 
