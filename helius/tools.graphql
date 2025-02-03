@@ -11,32 +11,53 @@ extend type Query {
           Helius RPC API for Solana blockchain. Available operations:
           
           1) Transaction Operations:
-             - parsedTransactions(address: String!, limit: Int = 10): Get transaction history for an address
-             Returns: timestamp, fee, signature, type, status, and account data
-          
-          2) Account Operations:
-             - getAccountInfo(address: String!): Get detailed account information
-             Returns: data, executable status, lamports, owner, and rent epoch
-          
-          3) Token Operations:
-             - getTokenAccountsByOwner(owner: String!, mint: String): Get token accounts for an owner
-             Returns: pubkey, account info, and token balance details
-             
-             - getTokenSupply(mint: String!): Get token supply information
-             Returns: total, circulating, non-circulating supply and accounts
+             - getTransaction(signature: String!): Get transaction details
+             Returns: slot, transaction message, and signatures
           
           Example queries:
-          - Get transactions: { parsedTransactions(address: "SolanaAddress123", limit: 5) }
-          - Get account: { getAccountInfo(address: "SolanaAddress123") }
-          - Get token accounts: { getTokenAccountsByOwner(owner: "OwnerAddress123", mint: "TokenMint123") }
+          - Get transaction: { getTransaction(signature: '3MDdKBrsEK8GKHdKYvhmpd7syVDb5YJSye1etBZbRt4WtCfcXwuWsnRaVZAtwA5Jk1mE4Fe9nwEDa3ieiocbLyAn') }
           
           Note: All operations use Solana mainnet and require API authentication.
           """
         }
         {
           name: "fields", 
-          const: "parsedTransactions|getAccountInfo|getTokenAccountsByOwner|getTokenSupply"
+          const: "getTransaction"
         }
       ]
     )
+} 
+
+query GetTransaction($signature: String!) {
+  getTransaction(signature: $signature) {
+    signatures
+    slot
+    transaction {
+      accountKeys
+      header {
+        numReadonlySignedAccounts
+        numReadonlyUnsignedAccounts
+        numRequiredSignatures
+      }
+      instructions {
+        accounts
+        data
+        programIdIndex
+      }
+      recentBlockhash
+    }
+    meta {
+      err
+      fee
+      innerInstructions
+      postBalances
+      preBalances
+      rewards {
+        pubkey
+        lamports
+        postBalance
+        rewardType
+      }
+    }
+  }
 } 

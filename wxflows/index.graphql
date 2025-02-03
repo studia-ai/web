@@ -4,6 +4,7 @@ schema
       "youtube_transcript/index.graphql"
       "wikipedia/index.graphql"
       "helius/index.graphql"
+      "wxflows/tools.graphql"
     ]
   ) {
   query: Query

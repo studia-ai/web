@@ -90,19 +90,21 @@ extend type Query {
         {
           name: "description"
           const: """
-          Helius RPC API for Solana blockchain. Available methods:
+          Helius RPC API for Solana blockchain. Available operations:
+          
           1) Transaction Operations:
-             - parsedTransactions(address, limit): Get parsed transactions
-             - getAccountInfo(address): Get account info
-          2) Token Operations:
-             - getTokenAccountsByOwner(owner, mint): Get token accounts
-             - getTokenSupply(mint): Get token supply information
-          Note: All operations use Solana mainnet.
+             - getTransaction(signature: String!): Get transaction details
+             Returns: slot, transaction message, and signatures
+          
+          Example queries:
+          - Get transaction: { getTransaction(signature: '3MDdKBrsEK8GKHdKYvhmpd7syVDb5YJSye1etBZbRt4WtCfcXwuWsnRaVZAtwA5Jk1mE4Fe9nwEDa3ieiocbLyAn') }
+          
+          Note: All operations use Solana mainnet and require API authentication.
           """
         }
-        { 
+        {
           name: "fields", 
-          const: "parsedTransactions|getAccountInfo|getTokenAccountsByOwner|getTokenSupply" 
+          const: "getTransaction"
         }
       ]
     )
