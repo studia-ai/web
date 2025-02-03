@@ -1,0 +1,65 @@
+type Supply {
+  total: Float
+  circulating: Float
+  nonCirculating: Float
+  nonCirculatingAccounts: [String]
+}
+
+type TransactionMeta {
+  err: String
+  fee: Float
+  innerInstructions: [String]
+  postBalances: [Float]
+  preBalances: [Float]
+  rewards: [Reward]
+}
+
+type Reward {
+  pubkey: String
+  lamports: Float
+  postBalance: Float
+  rewardType: String
+}
+
+type TransactionMessage {
+  accountKeys: [String]
+  header: TransactionHeader
+  instructions: [Instruction]
+  recentBlockhash: String
+}
+
+type TransactionHeader {
+  numReadonlySignedAccounts: Int
+  numReadonlyUnsignedAccounts: Int
+  numRequiredSignatures: Int
+}
+
+type Instruction {
+  accounts: [Int]
+  data: String
+  programIdIndex: Int
+}
+
+type Transaction {
+  slot: Int
+  transaction: TransactionMessage
+  signatures: [String]
+}
+
+type Query {
+  "Get token supply"
+  getTokenSupply(mint: String!): Supply
+    @rest(
+      endpoint: "https://mainnet.helius-rpc.com/?api-key=$api_key"
+      method: POST
+      postbody: "{\"jsonrpc\":\"2.0\",\"id\":\"token-supply\",\"method\":\"getTokenSupply\",\"params\":[\"{mint}\"]}"
+    )
+
+  "Get transaction details for a confirmed transaction"
+  getTransaction(signature: String!): Transaction
+    @rest(
+      endpoint: "https://mainnet.helius-rpc.com/?api-key=$api_key"
+      method: POST
+      postbody: "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"getTransaction\",\"params\":[\"{signature}\",\"json\"]}"
+    )
+} 

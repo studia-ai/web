@@ -3,10 +3,8 @@ schema
     files: [
       "wikipedia/index.graphql"
       "tools.graphql"
-      "google_books/index.graphql"
-      "math/index.graphql"
-      "exchange/index.graphql"
       "youtube_transcript/index.graphql"
+      "helius/index.graphql"
     ]
   ) {
   query: Query

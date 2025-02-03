@@ -21,9 +21,87 @@ Tool-specific instructions:
    - Query: { transcript(videoUrl: $videoUrl, langCode: $langCode) { title captions { text start dur } } }
    - Variables: { "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID", "langCode": "en" }
 
-2. google_books:
-   - For search: { books(q: $q, maxResults: $maxResults) { volumeId title authors } }
-   - Variables: { "q": "search terms", "maxResults": 5 }
+
+2. helius:
+   - Get parsed transactions:
+     Query: { parsedTransactions(address: $address, limit: $limit) { timestamp fee signature type status } }
+     Variables: { "address": "SOLANA_ADDRESS", "limit": 10 }
+   
+   - Get NFT events:
+     Query: { nftEvents(mint: $mint) }
+     Variables: { "mint": "NFT_MINT_ADDRESS" }
+   
+   - Get token balances:
+     Query: { balances(address: $address) }
+     Variables: { "address": "SOLANA_ADDRESS" }
+   
+   - Get enhanced transaction:
+     Query: { getEnhancedTransaction(signature: $signature) { description type source fee signature timestamp nativeTransfers { fromUserAccount toUserAccount amount } tokenTransfers { fromUserAccount toUserAccount tokenAmount mint } } }
+     Variables: { "signature": "TRANSACTION_SIGNATURE" }
+   
+   - Get transaction history:
+     Query: { getEnhancedTransactionHistory(address: $address, limit: $limit) }
+     Variables: { "address": "SOLANA_ADDRESS", "limit": 100 }
+
+   - Get account info:
+     Query: { getAccountInfo(address: $address) { lamports owner executable rentEpoch data } }
+     Variables: { "address": "SOLANA_ADDRESS" }
+   
+   - Get balance:
+     Query: { getBalance(address: $address) }
+     Variables: { "address": "SOLANA_ADDRESS" }
+   
+   - Get token accounts:
+     Query: { getTokenAccountsByOwner(owner: $owner, mint: $mint) { pubkey balance { amount decimals uiAmount } } }
+     Variables: { "owner": "OWNER_ADDRESS", "mint": "MINT_ADDRESS" }
+
+   - Get token largest accounts:
+     Query: { getTokenLargestAccounts(mint: $mint) }
+     Variables: { "mint": "TOKEN_MINT_ADDRESS" }
+   
+   - Get multiple accounts:
+     Query: { getMultipleAccounts(pubkeys: $pubkeys) { data owner lamports executable } }
+     Variables: { "pubkeys": ["ADDRESS1", "ADDRESS2"] }
+   
+   - Get program accounts:
+     Query: { getProgramAccounts(programId: $programId) { data owner lamports executable } }
+     Variables: { "programId": "PROGRAM_ID" }
+
+   - Get token supply:
+     Query: { getTokenSupply(mint: $mint) { total circulating nonCirculating nonCirculatingAccounts } }
+     Variables: { "mint": "TOKEN_MINT_ADDRESS" }
+   
+   - Get block height:
+     Query: { getBlockHeight }
+     Variables: {}
+   
+   - Get block production:
+     Query: { getBlockProduction }
+     Variables: {}
+   
+   - Get epoch info:
+     Query: { getEpochInfo }
+     Variables: {}
+   
+   - Get inflation rate:
+     Query: { getInflationRate }
+     Variables: {}
+   
+   - Get largest accounts:
+     Query: { getLargestAccounts }
+     Variables: {}
+   
+   - Get slot:
+     Query: { getSlot }
+     Variables: {}
+   
+   - Get version:
+     Query: { getVersion }
+     Variables: {}
+   
+   - Simulate transaction:
+     Query: { simulateTransaction(transaction: $transaction) }
+     Variables: { "transaction": "ENCODED_TRANSACTION" }
 
    refer to previous messages for context and use them to accurately answer the question
 `;
