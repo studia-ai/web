@@ -21,9 +21,12 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
+import { EventEmitter } from 'events';
 import { POPULAR_MODELS } from "./models";
 import SYSTEM_MESSAGE from "@/constants/systemMessage";
 
+// Increase the maximum number of listeners
+EventEmitter.defaultMaxListeners = 20;
 
 // Trim the messages to manage conversation history
 const trimmer = trimMessages({

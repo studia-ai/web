@@ -46,15 +46,6 @@ export const POPULAR_MODELS: OpenRouterModel[] = [
     completionPrice: 0.03
   },
   { 
-    id: "google/gemini-pro", 
-    name: "Gemini Pro", 
-    category: "Google",
-    description: "Health and academic specialist",
-    contextWindow: 32000,
-    promptPrice: 0.001,
-    completionPrice: 0.002
-  },
-  { 
     id: "meta-llama/llama-3.3-70b-instruct", 
     name: "Llama 3.3 70B Instruct", 
     category: "Meta",

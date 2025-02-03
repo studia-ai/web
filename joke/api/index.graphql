@@ -1,0 +1,12 @@
+type Query {
+  getJoke(
+    category: String! 
+    format: String = "json"
+    lang: String = "en"
+    type: String = "single"
+    amount: Int = 1
+  ): JSON
+    @rest(
+      endpoint: "https://v2.jokeapi.dev/joke/$category?format=$format&lang=$lang&type=$type&amount=$amount"
+    )
+} 

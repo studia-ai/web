@@ -9,83 +9,29 @@ extend type Query {
         { name: "fields", const: "search|page" }
       ]
     )
-  # google_books: TC_GraphQL
-  #   @supplies(query: "tc_tools")
-  #   @materializer(
-  #     query: "tc_graphql_tool"
-  #     arguments: [
-  #       { name: "name", const: "google_books" }
-  #       {
-  #         name: "description"
-  #         const: "Retrieve information from Google Books. Find books by search string, for example to search for Daniel Keyes 'Flowers for Algernon' use q: 'intitle:flowers+inauthor:keyes'"
-  #       }
-  #       { name: "fields", const: "books|book" }
-  #     ]
-  #   )
-  # math: TC_GraphQL
-  #   @supplies(query: "tc_tools")
-  #   @materializer(
-  #     query: "tc_graphql_tool"
-  #     arguments: [
-  #       { name: "name", const: "math" }
-  #       {
-  #         name: "description"
-  #         const: "Performs mathematical calculations, date and unit conversions, formula solving, etc."
-  #       }
-  #       { name: "fields", const: "wolframAlpha" }
-  #     ]
-  #   )
-  # exchange: TC_GraphQL
-  #   @supplies(query: "tc_tools")
-  #   @materializer(
-  #     query: "tc_graphql_tool"
-  #     arguments: [
-  #       { name: "name", const: "exchange" }
-  #       {
-  #         name: "description"
-  #         const: "Convert currency, supports historical rates. Provide dates in the format YYYY-MM-DD"
-  #       }
-  #       { name: "fields", const: "exchangeRates" }
-  #     ]
-  #   )
-  youtube_transcript: TC_GraphQL
+  jokeTool: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "joke" }
+        { name: "description", const: "Retrieve jokes from JokeAPI. Provide any category."}
+        { name: "fields", const: "getJoke" }
+      ]
+    )
+}
+
+extend type Query {
+  youtubeTranscriptTool: TC_GraphQL
     @supplies(query: "tc_tools")
     @materializer(
       query: "tc_graphql_tool"
       arguments: [
         { name: "name", const: "youtube_transcript" }
-        {
-          name: "description"
-          const: "Retrieve transcripts for a given YouTube video. The videoUrl should be in the format https://www.youtube.com/watch?v=VIDEO_ID"
-        }
+        { name: "description", const: "Retrieve transcripts for a given YouTube video. The videoUrl should be in the format https://www.youtube.com/watch?v=VIDEO_ID" }
         { name: "fields", const: "transcript" }
       ]
     )
-  helius_api: TC_GraphQL
-    @supplies(query: "tc_tools")
-    @materializer(
-      query: "tc_graphql_tool"
-      arguments: [
-        { name: "name", const: "helius" }
-        {
-          name: "description"
-          const: """
-          Helius RPC API for Solana blockchain. Available endpoints:
-          1) Account Information: getAccountInfo, getBalance, getMultipleAccounts
-          2) Block Information: getBlock, getBlockCommitment, getBlockHeight, getBlockProduction, getBlockTime, getBlocks
-          3) Token Operations: getTokenSupply, getTokenAccountBalance, getTokenAccountsByDelegate, getTokenAccountsByOwner, getTokenLargestAccounts
-          4) Transaction Operations: getTransaction, simulateTransaction, getTransactionCount, getSignaturesForAddress
-          5) Network Status: getHealth, getVersion, getIdentity, getClusterNodes
-          6) Epoch & Slots: getEpochInfo, getEpochSchedule, getSlot, getSlotLeader, getSlotLeaders
-          7) Performance & Fees: getRecentPerformanceSamples, getRecentPrioritizationFees, getFeeForMessage
-          8) Inflation: getInflationGovernor, getInflationRate, getInflationReward
-          9) Other Operations: requestAirdrop, getLargestAccounts, getVoteAccounts
-          """
-        }
-        { 
-          name: "fields"
-          const: "getAccountInfo|getBalance|getBlock|getBlockCommitment|getBlockHeight|getBlockProduction|getBlockTime|getBlocks|getBlocksWithLimit|getClusterNodes|getEpochInfo|getEpochSchedule|getFeeForMessage|getFirstAvailableBlock|getGenesisHash|getHealth|getHighestSnapshotSlot|getIdentity|getInflationGovernor|getInflationRate|getInflationReward|getLargestAccounts|getLatestBlockhash|getLeaderSchedule|getMaxRetransmitSlot|getMaxShredInsertSlot|getMinimumBalanceForRentExemption|getMultipleAccounts|getProgramAccounts|getRecentPerformanceSamples|getRecentPrioritizationFees|getSignatureStatuses|getSignaturesForAddress|getSlot|getSlotLeader|getSlotLeaders|getStakeMinimumDelegation|getSupply|getTokenAccountBalance|getTokenAccountsByDelegate|getTokenAccountsByOwner|getTokenLargestAccounts|getTokenSupply|getTransaction|getTransactionCount|getVersion|getVoteAccounts|isBlockhashValid|minimumLedgerSlot|requestAirdrop|sendTransaction|simulateTransaction"
-        }
-      ]
-    )
-}
+} 
+
+    

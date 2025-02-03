@@ -1,0 +1,12 @@
+extend type Query {
+  jokeTool: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "joke" }
+        { name: "description", const: "Retrieve jokes from JokeAPI. Provide any category." }
+        { name: "fields", const: "getJoke" }
+      ]
+    )
+} 

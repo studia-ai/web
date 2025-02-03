@@ -2,9 +2,9 @@ schema
   @sdl(
     files: [
       "wikipedia/index.graphql"
+      "joke/index.graphql"
       "tools.graphql"
       "youtube_transcript/index.graphql"
-      "helius/index.graphql"
     ]
   ) {
   query: Query

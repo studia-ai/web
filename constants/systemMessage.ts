@@ -21,12 +21,7 @@ Tool-specific instructions:
    - Query: { transcript(videoUrl: $videoUrl, langCode: $langCode) { title captions { text start dur } } }
    - Variables: { "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID", "langCode": "en" }
 
-2. helius:
-   - Get transaction:
-     Query: { getTransaction(signature: $signature) { slot transaction { accountKeys header { numReadonlySignedAccounts numReadonlyUnsignedAccounts numRequiredSignatures } instructions { accounts data programIdIndex } recentBlockhash } signatures meta { err fee innerInstructions postBalances preBalances rewards { pubkey lamports postBalance rewardType } } } }
-     Variables: { "signature": "TRANSACTION_SIGNATURE" }
-
-   refer to previous messages for context and use them to accurately answer the question
+refer to previous messages for context and use them to accurately answer the question
 `;
 
 export default SYSTEM_MESSAGE;
